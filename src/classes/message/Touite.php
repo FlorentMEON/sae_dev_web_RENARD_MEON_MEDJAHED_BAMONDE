@@ -16,7 +16,7 @@ class Touite {
 	public function getTags() {
 		$tags = [];
 		$pattern = '/#([a-zA-Z0-9_]+)/';
-		if (preg_match_all($pattern, $tweet, $matches)) {
+		if (preg_match_all($pattern, $this->texte, $matches)) {
 		$tags = $matches[0];
 		}
 		return $tags;
