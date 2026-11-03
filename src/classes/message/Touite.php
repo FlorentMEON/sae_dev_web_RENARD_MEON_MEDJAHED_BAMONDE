@@ -1,6 +1,6 @@
 <?php
 
-namespace src\classes\Message\Touite;
+namespace src\classes\message\Touite;
 
 class Touite {
 	
@@ -23,7 +23,7 @@ class Touite {
 	}
 	
 	public function __get(string $att): mixed {
-		if (property_exists($this, $att) {
+		if (property_exists($this, $att)) {
 			return $this->$att;
 		}
 
