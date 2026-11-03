@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace touiteur\dispatch;
+use touiteur\action as AC;
 
 class Dispatcher{
     private $action;
