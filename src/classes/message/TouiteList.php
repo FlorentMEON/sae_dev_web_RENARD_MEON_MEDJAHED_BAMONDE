@@ -16,13 +16,12 @@ class TouiteList {
 	
 	public function ajoutTouite (Touite $t) {
 		$this->touites[] = $t;
-		$this->nbTouite =
 	}
 	
 	public function getNbTouite(): int {
 		$i = 0;
 		foreach($t as $to) {
-		$i += $i 1;
+		$i += 1;
 		}
 		return $i;
 	}

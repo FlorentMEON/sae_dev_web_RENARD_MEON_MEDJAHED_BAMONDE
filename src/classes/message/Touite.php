@@ -26,6 +26,8 @@ class Touite {
 		if (property_exists($this, $att) {
 			return $this->$att;
 		}
+
+		return null;
 	}
 	
 	
