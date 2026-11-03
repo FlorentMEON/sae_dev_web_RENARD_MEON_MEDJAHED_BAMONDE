@@ -7,10 +7,8 @@ class TouiteList {
 	protected array $touites;
 	
 	
-	public function __construct(array $t = []) {
-		if(!(empty($t))) {
-			$this->touites = $t;
-		}
+	public function __construct() {
+		$this->touites = [];
 	}
 	
 	
@@ -19,11 +17,7 @@ class TouiteList {
 	}
 	
 	public function getNbTouite(): int {
-		$i = 0;
-		foreach($t as $to) {
-		$i += 1;
-		}
-		return $i;
+		return count($this->touites);
 	}
 	
 	
