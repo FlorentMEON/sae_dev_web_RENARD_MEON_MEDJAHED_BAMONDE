@@ -1,6 +1,6 @@
 <?php
 
-namespace src\classes\message\Touite;
+namespace touiteur\message\Touite;
 
 class Touite {
 	

@@ -1,6 +1,6 @@
 <?php 
 
-namespace src\classes\message\Touitelist;
+namespace touiteur\message\Touitelist;
 
 class TouiteList {
 	
