@@ -1,9 +1,9 @@
 
 <?php
 
-namespace src\classes\renderer;
+namespace touiteur\render;
 
-use src\classes\message\Touite\Touite;
+use touiteur\message\Touite\Touite;
 
 class TouiteRenderer
 {
