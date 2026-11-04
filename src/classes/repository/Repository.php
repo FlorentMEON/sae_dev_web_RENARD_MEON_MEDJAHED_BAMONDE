@@ -32,7 +32,7 @@ class Repository {
 	
 	public static function getInstance(string $file) {
 		if(is_null(self::instance)) {
-			self::instance = new Repository((self::$config);
+			self::instance = new Repository(self::$config);
 		}
 		return self::$instance;
 	}
@@ -40,21 +40,37 @@ class Repository {
 	
 	/// VA ETRE MODIFIER POUR AVOIR EN FONCTION DES UTILISATEUR OU DES TAGS
 	public function getTouite(int $idTouite) { 
-	$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
-			  FROM TOUITE t
-			  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
-			  WHERE t.id_touite = :id";
-	$stmt = $this->pdo->prepare($query);
-	$secuId = filter_var($idTouite, FILTER_SANITIZE_NUMBER_INT);
-	$stmt->execute(['id' => $secuId]);
-	$ligne = $stmt->fetch();
-	if ($ligne === false) {
-		return null;
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
+				  FROM TOUITE t
+				  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+				  WHERE t.id_touite = :id";
+		$stmt = $this->pdo->prepare($query);
+		$secuId = filter_var($idTouite, FILTER_SANITIZE_NUMBER_INT);
+		$stmt->execute(['id' => $secuId]);
+		$ligne = $stmt->fetch();
+		if ($ligne === false) {
+			return null;
+		}
+		$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
+		$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+		$touite = new Touite($secuTexte, $secuAuteur);
+		return $touite;
 	}
-	$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
-	$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
-	$touite = new Touite($secuTexte, $secuAuteur);
-	return $touite;
+	
+	public function estUtilisateur(string $n) {
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
+		$query = "SELECT nom		
+				  FROM utilisateur
+				  WHERE nom = :nom";
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $secuNom]);
+		$ligne = $stmt->fetch();
+	}
+	
+	public function ajoutUtilisateur(string $n) {
+	}
+	
+	public function ajoutTouite(string $n, string $texte) {
 	}
 	
 	
