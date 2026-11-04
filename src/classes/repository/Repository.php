@@ -39,22 +39,24 @@ class Repository {
 	
 	
 	/// VA ETRE MODIFIER POUR AVOIR EN FONCTION DES UTILISATEUR OU DES TAGS
-	public function getTouite(int $idTouite) { 
+	public function getTouiteUtilisateur(string $nom) {
 		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
-				  FROM TOUITE t
-				  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
-				  WHERE t.id_touite = :id";
+                  FROM TOUITE t
+                  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+                  WHERE u.nom = :nom
+                  ORDER BY t.date_publication DESC";
 		$stmt = $this->pdo->prepare($query);
-		$secuId = filter_var($idTouite, FILTER_SANITIZE_NUMBER_INT);
-		$stmt->execute(['id' => $secuId]);
-		$ligne = $stmt->fetch();
-		if ($ligne === false) {
-			return null;
+		$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);
+		$stmt->execute(['nom' => $secuNom]);
+		$lignes = $stmt->fetchAll();
+		$liste = [];
+		foreach ($lignes as $ligne) {
+			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$touite = new Touite($secuTexte, $secuAuteur);
+			$liste[] = $touite;
 		}
-		$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
-		$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
-		$touite = new Touite($secuTexte, $secuAuteur);
-		return $touite;
+		return $liste
 	}
 	
 	public function estUtilisateur(string $n) {
@@ -87,6 +89,8 @@ class Repository {
 		$stmt = $this->pdo->prepare($query);
 		$stmt->execute(['nom' => $secuNom]);
 	}
+	
+	
 	
 	
 }
