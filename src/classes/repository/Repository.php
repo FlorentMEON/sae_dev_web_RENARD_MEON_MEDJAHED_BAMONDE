@@ -37,8 +37,7 @@ class Repository {
 		return self::$instance;
 	}
 	
-	
-	/// VA ETRE MODIFIER POUR AVOIR EN FONCTION DES UTILISATEUR OU DES TAGS
+
 	public function getTouiteUtilisateur(string $nom) {
 		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
                   FROM TOUITE t
@@ -57,6 +56,29 @@ class Repository {
 			$liste[] = $touite;
 		}
 		return $liste
+	}
+	
+	public function getTouiteTag(string $tag) {
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
+                  FROM TOUITE t
+                  INNER JOIN CONTENIR c ON t.id_touite = c.id_touite
+                  INNER JOIN TAG tg ON c.id_tag = tg.id_tag
+                  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+                  WHERE tg.libelle = :tag
+                  ORDER BY t.date_publication DESC";
+		$stmt = $this->pdo->prepare($query);
+		$secuTag = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);
+		$stmt->execute(['tag' => $secuTag]);
+		$lignes = $stmt->fetchAll();
+		$liste = [];
+		foreach ($lignes as $ligne) {
+			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$touite = new Touite($secuTexte, $secuAuteur);
+			$touite->id = $ligne['id_touite'];
+			$liste[] = $touite;
+		}
+		return $liste;
 	}
 	
 	public function estUtilisateur(string $n) {
