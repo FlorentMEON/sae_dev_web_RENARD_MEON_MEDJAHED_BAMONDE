@@ -32,30 +32,87 @@ class Repository {
 	
 	public static function getInstance(string $file) {
 		if(is_null(self::instance)) {
-			self::instance = new Repository((self::$config);
+			self::instance = new Repository(self::$config);
 		}
 		return self::$instance;
 	}
 	
+
+	public function getTouiteUtilisateur(string $nom) {
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
+                  FROM TOUITE t
+                  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+                  WHERE u.nom = :nom
+                  ORDER BY t.date_publication DESC";
+		$stmt = $this->pdo->prepare($query);
+		$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);
+		$stmt->execute(['nom' => $secuNom]);
+		$lignes = $stmt->fetchAll();
+		$liste = [];
+		foreach ($lignes as $ligne) {
+			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$touite = new Touite($secuTexte, $secuAuteur);
+			$liste[] = $touite;
+		}
+		return $liste
+	}
 	
-	/// VA ETRE MODIFIER POUR AVOIR EN FONCTION DES UTILISATEUR OU DES TAGS
-	public function getTouite(int $idTouite) { 
-	$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
-			  FROM TOUITE t
-			  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
-			  WHERE t.id_touite = :id";
-	$stmt = $this->pdo->prepare($query);
-	$secuId = filter_var($idTouite, FILTER_SANITIZE_NUMBER_INT);
-	$stmt->execute(['id' => $secuId]);
-	$ligne = $stmt->fetch();
-	if ($ligne === false) {
-		return null;
+	public function getTouiteTag(string $tag) {
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
+                  FROM TOUITE t
+                  INNER JOIN CONTENIR c ON t.id_touite = c.id_touite
+                  INNER JOIN TAG tg ON c.id_tag = tg.id_tag
+                  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+                  WHERE tg.libelle = :tag
+                  ORDER BY t.date_publication DESC";
+		$stmt = $this->pdo->prepare($query);
+		$secuTag = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);
+		$stmt->execute(['tag' => $secuTag]);
+		$lignes = $stmt->fetchAll();
+		$liste = [];
+		foreach ($lignes as $ligne) {
+			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$touite = new Touite($secuTexte, $secuAuteur);
+			$touite->id = $ligne['id_touite'];
+			$liste[] = $touite;
+		}
+		return $liste;
 	}
-	$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
-	$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
-	$touite = new Touite($secuTexte, $secuAuteur);
-	return $touite;
+	
+	public function estUtilisateur(string $n) {
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
+		$query = "SELECT nom		
+				  FROM utilisateur
+				  WHERE nom = :nom";
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $secuNom]);
+		$ligne = $stmt->fetch();
 	}
+	
+	public function ajoutTouite(string $n, string $texte) {
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
+		$secuTexte = filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);
+		$query1 = "SELECT id_utilisateur FROM UTILISATEUR WHERE nom = :nom";
+        $stmt1 = $this->pdo->prepare($queryUser);
+       	$stmt1->execute(['nom' => $secuNom]);
+       	$Ligne1 = $stmt1->fetch();
+		$idAuteur = $Ligne1['id_utilisateur'];
+		$query2 = "INSERT INTO TOUITE (texte, date_publication, id_auteur) 
+                   VALUES (:texte, NOW(), :id_auteur)";
+       	$stmt2 = $this->pdo->prepare($queryTouite);
+		$resultat = $stmtTouite->execute(['texte' => $secuTexte, 'id_auteur' => $idAuteur]);
+	}
+	
+	public function ajoutUtilisateur(string $n) {
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
+		$query = "INSERT INTO UTILISATEUR (nom, nb_touites) VALUES (:nom, 0)";
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $secuNom]);
+	}
+	
+	
 	
 	
 }
