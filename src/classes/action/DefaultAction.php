@@ -1,3 +1,4 @@
+
 <?php
 
 declare(strict_types=1);
@@ -22,6 +23,16 @@ class DefaultAction extends Action
 
         // On construit le HTML de la page d'accueil
         $html = '<h1>Accueil !</h1>';
+
+        // Formulaire pour s'abonner à un tag
+        $html .= '<h2>S abonner à un tag</h2>';
+        $html .= '<form method="POST" action="?action=subscribeTag">';
+        $html .= '<label for="tag">Tag :</label>';
+        $html .= '<input type="text" id="tag" name="tag" required>';
+        $html .= '<button type="submit">S abonner</button>';
+        $html .= '</form>';
+
+        // On affiche la liste des touites
         $html .= $renderer->render();
 
         return $html;
