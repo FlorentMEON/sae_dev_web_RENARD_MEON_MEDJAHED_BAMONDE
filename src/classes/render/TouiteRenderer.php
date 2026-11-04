@@ -2,28 +2,29 @@
 
 namespace touiteur\render;
 
-use touiteur\message\Touite\Touite;
+use touiteur\message\Touite;
 
 class TouiteRenderer
 {
-    // Choix d'affichage, pas une contrainte du sujet
+    // Limites pour l'affichage des touites
     const LONGUEUR_COURTE = 150;
+    const LONGUEUR_MAX = 235;
 
     private Touite $touite;
 
+    // On récupère le touite à afficher
     public function __construct(Touite $touite)
     {
         $this->touite = $touite;
     }
 
+    // Affiche une version courte du touite
     public function renderCourt(): string
     {
-        $texte = $this->touite->texte;
+        // On récupère le texte et on le raccourcit si nécessaire
+        $texte = $this->couper($this->touite->texte);
 
-        if (mb_strlen($texte, 'UTF-8') > self::LONGUEUR_COURTE) {
-            $texte = mb_substr($texte, 0, self::LONGUEUR_COURTE, 'UTF-8') . '…';
-        }
-
+        // Construction du HTML du touite
         $html = '<article class="touite touite-court">';
         $html .= '<p class="touite-auteur">' . $this->lienAuteur() . '</p>';
         $html .= '<p class="touite-texte">' . $this->echapper($texte) . '</p>';
@@ -33,27 +34,84 @@ class TouiteRenderer
         return $html;
     }
 
+    // Affiche le touite en entier
     public function renderDetail(): string
     {
         $html = '<article class="touite touite-detail">';
         $html .= '<p class="touite-auteur">' . $this->lienAuteur() . '</p>';
-        $html .= '<p class="touite-texte">' . $this->echapper($this->touite->texte) . '</p>';
+        $html .= '<p class="touite-texte">'
+            . $this->echapper($this->touite->texte) . '</p>';
         $html .= $this->renderTags();
         $html .= '</article>';
 
         return $html;
     }
 
+    // Raccourcit le texte à 150 caractères sans couper un mot
+    private function couper(string $texte): string
+    {
+        if (strlen($texte) <= self::LONGUEUR_COURTE) {
+            return $texte;
+        }
+
+        // On sépare le texte en mots
+        $mots = explode(' ', $texte);
+        $court = '';
+
+        // On ajoute les mots tant qu'on ne dépasse pas la limite
+        foreach ($mots as $mot) {
+            if ($court === '') {
+                $nouveau = $mot;
+            } else {
+                $nouveau = $court . ' ' . $mot;
+            }
+
+            // Si le prochain mot dépasse la limite, on s'arrête
+            if (strlen($nouveau) > self::LONGUEUR_COURTE) {
+                if ($court === '') {
+                    return $texte;
+                }
+
+                return $court . '...';
+            }
+
+            $court = $nouveau;
+        }
+
+        return $court;
+    }
+
+    // Enlève le # au début d'un tag s'il est présent
+    private function enleverDieze(string $tag): string
+    {
+        if ($tag === '' || $tag[0] !== '#') {
+            return $tag;
+        }
+
+        $nom = '';
+
+        for ($i = 1; $i < strlen($tag); $i++) {
+            $nom .= $tag[$i];
+        }
+
+        return $nom;
+    }
+
+    // Affiche les tags du touite
     private function renderTags(): string
     {
         $liens = '';
 
         foreach ($this->touite->getTags() as $tag) {
-            $nom = ltrim($tag, '#');
-            $url = 'index.php?action=tag&tag=' . urlencode($nom);
+            $nom = $this->enleverDieze($tag);
+
+            // L'action tag sera traitée par le Dispatcher
+            $url = '?action=tag&tag=' . $nom;
+
             $liens .= $this->creerLien($url, '#' . $nom) . ' ';
         }
 
+        // Si le touite n'a pas de tag, on n'affiche rien
         if ($liens === '') {
             return '';
         }
@@ -61,22 +119,27 @@ class TouiteRenderer
         return '<p class="touite-tags">' . $liens . '</p>';
     }
 
+    // Crée un lien vers les touites de l'auteur
     private function lienAuteur(): string
     {
         $pseudo = $this->touite->utilisateur;
-        $url = 'index.php?action=user&pseudo=' . urlencode($pseudo);
+
+        // Le Dispatcher se chargera de l'action user
+        $url = '?action=user&pseudo=' . $pseudo;
 
         return $this->creerLien($url, $pseudo);
     }
 
-    // urlencode() est déjà appliqué aux paramètres ; on échappe ici l'URL entière
+    // Crée une balise HTML pour un lien
     private function creerLien(string $url, string $libelle): string
     {
-        return '<a href="' . $this->echapper($url) . '">' . $this->echapper($libelle) . '</a>';
+        return '<a href="' . $this->echapper($url) . '">'
+            . $this->echapper($libelle) . '</a>';
     }
 
+    // Sécurise le texte affiché.
     private function echapper(string $texte): string
     {
-        return htmlspecialchars($texte, ENT_QUOTES, 'UTF-8');
+        return filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);
     }
 }
