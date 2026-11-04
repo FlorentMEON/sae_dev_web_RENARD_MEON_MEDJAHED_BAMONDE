@@ -28,7 +28,7 @@ class Touite {
 	}
 	
 	public function getDate(){
-		return $this->date->format('d,m,y');
+		return $this->date->format('d,m,y,H,i,s');
 	}
 	
 	public function __get(string $att): mixed {
