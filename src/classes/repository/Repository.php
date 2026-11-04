@@ -67,10 +67,25 @@ class Repository {
 		$ligne = $stmt->fetch();
 	}
 	
-	public function ajoutUtilisateur(string $n) {
+	public function ajoutTouite(string $n, string $texte) {
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
+		$secuTexte = filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);
+		$query1 = "SELECT id_utilisateur FROM UTILISATEUR WHERE nom = :nom";
+        $stmt1 = $this->pdo->prepare($queryUser);
+       	$stmt1->execute(['nom' => $secuNom]);
+       	$Ligne1 = $stmt1->fetch();
+		$idAuteur = $Ligne1['id_utilisateur'];
+		$query2 = "INSERT INTO TOUITE (texte, date_publication, id_auteur) 
+                   VALUES (:texte, NOW(), :id_auteur)";
+       	$stmt2 = $this->pdo->prepare($queryTouite);
+		$resultat = $stmtTouite->execute(['texte' => $secuTexte, 'id_auteur' => $idAuteur]);
 	}
 	
-	public function ajoutTouite(string $n, string $texte) {
+	public function ajoutUtilisateur(string $n) {
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
+		$query = "INSERT INTO UTILISATEUR (nom, nb_touites) VALUES (:nom, 0)";
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $secuNom]);
 	}
 	
 	
