@@ -34,6 +34,7 @@ class Dispatcher{
                     <nav>
                         <ul>
                             <li><a href="?action=default">Accueil</a></li>
+                            <li><a href="?action=connect">Se connecter</a></li>
                         </ul>
                     </nav>
                 </header>
