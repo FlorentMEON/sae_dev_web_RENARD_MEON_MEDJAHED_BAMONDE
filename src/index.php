@@ -10,6 +10,7 @@ $loader->addPsr4('touiteur\\', __DIR__."/classes");
 $dis = new DP\Dispatcher();
 
 $dis->addRoute('default', AC\DefaultAction::class)
-    ->addRoute('connect', AC\ConnectionAction::class);
+    ->addRoute('connect', AC\ConnectionAction::class)
+	->addRoute('tag', AC\TagAction::class);
     
 $dis->run();

@@ -39,19 +39,19 @@ class Repository {
 	
 
 	public function getTouiteUtilisateur(string $nom) {
-		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		//Requete pour trouver les touite avec un nom d'utilisateur
                   FROM TOUITE t
                   INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
                   WHERE u.nom = :nom
                   ORDER BY t.date_publication DESC";
 		$stmt = $this->pdo->prepare($query);
-		$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);
+		$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);			
 		$stmt->execute(['nom' => $secuNom]);
-		$lignes = $stmt->fetchAll();
+		$lignes = $stmt->fetchAll();			/// renvoie des resultats en tableau
 		$liste = [];
-		foreach ($lignes as $ligne) {
+		foreach ($lignes as $ligne) {     ///boucle pour ajouter les touites au tableau qui sera renvoyé
 			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
-			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);				///Vérification du nom de l'utilisateur
 			$touite = new Touite($secuTexte, $secuAuteur);
 			$liste[] = $touite;
 		}
@@ -59,7 +59,7 @@ class Repository {
 	}
 	
 	public function getTouiteTag(string $tag) {
-		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		///Requete pour trouver les touite avec un tag
                   FROM TOUITE t
                   INNER JOIN CONTENIR c ON t.id_touite = c.id_touite
                   INNER JOIN TAG tg ON c.id_tag = tg.id_tag
@@ -67,13 +67,13 @@ class Repository {
                   WHERE tg.libelle = :tag
                   ORDER BY t.date_publication DESC";
 		$stmt = $this->pdo->prepare($query);
-		$secuTag = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);
+		$secuTag = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);					///Vérification du tag
 		$stmt->execute(['tag' => $secuTag]);
-		$lignes = $stmt->fetchAll();
+		$lignes = $stmt->fetchAll();					/// renvoie les resultats en tableau
 		$liste = [];
-		foreach ($lignes as $ligne) {
-			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
-			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);
+		foreach ($lignes as $ligne) {			///boucle pour ajouter les touites au tableau qui sera renvoyé
+			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);		///Vérification du texte
+			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);       ///Vérification du nom de l'utilisateur
 			$touite = new Touite($secuTexte, $secuAuteur);
 			$touite->id = $ligne['id_touite'];
 			$liste[] = $touite;
@@ -82,38 +82,38 @@ class Repository {
 	}
 	
 	public function estUtilisateur(string $n) {
-		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
-		$query = "SELECT nom		
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);      ///Vérification du nom de l'utilisateur
+		$query = "SELECT nom								///Requete pour trouver l'ID de l'utilisateur mit en paramètre
 				  FROM utilisateur
 				  WHERE nom = :nom";
 		$stmt = $this->pdo->prepare($query);
 		$stmt->execute(['nom' => $secuNom]);
 		$ligne = $stmt->fetch();
+		if ($ligne !== false) {
+			return true;  			/// la méthode fetch renvoie false si elle ne trouve rien alors on teste son contenu
+		}
+		return false;			
 	}
 	
 	public function ajoutTouite(string $n, string $texte) {
 		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
 		$secuTexte = filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);
-		$query1 = "SELECT id_utilisateur FROM UTILISATEUR WHERE nom = :nom";
+		$query1 = "SELECT id_utilisateur FROM UTILISATEUR WHERE nom = :nom";    ///Requete pour trouver l'ID de l'utilisateur mit en paramètre
         $stmt1 = $this->pdo->prepare($queryUser);
-       	$stmt1->execute(['nom' => $secuNom]);
-       	$Ligne1 = $stmt1->fetch();
+       	$stmt1->execute(['nom' => $secuNom]);			///Exécution de la commande
+       	$Ligne1 = $stmt1->fetch();				
 		$idAuteur = $Ligne1['id_utilisateur'];
-		$query2 = "INSERT INTO TOUITE (texte, date_publication, id_auteur) 
+		$query2 = "INSERT INTO TOUITE (texte, date_publication, id_auteur)  ///Requete pour ajouter un touite dans la BDD
                    VALUES (:texte, NOW(), :id_auteur)";
        	$stmt2 = $this->pdo->prepare($queryTouite);
-		$resultat = $stmtTouite->execute(['texte' => $secuTexte, 'id_auteur' => $idAuteur]);
+		$resultat = $stmtTouite->execute(['texte' => $secuTexte, 'id_auteur' => $idAuteur]);   ///Exécution de la commande
 	}
 	
 	public function ajoutUtilisateur(string $n) {
-		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
-		$query = "INSERT INTO UTILISATEUR (nom, nb_touites) VALUES (:nom, 0)";
-		$stmt = $this->pdo->prepare($query);
-		$stmt->execute(['nom' => $secuNom]);
+		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);       ///Vérification du nom de l'utilisateur
+		$query = "INSERT INTO UTILISATEUR (nom, nb_touites) VALUES (:nom, 0)";    ///Requete pour ajouter un utilisateur dans la BDD
+		$stmt = $this->pdo->prepare($query);      
+		$stmt->execute(['nom' => $secuNom]);     ///Exécution de la commande
 	}
-	
-	
-	
-	
 }
 >
