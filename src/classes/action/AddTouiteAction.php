@@ -36,7 +36,7 @@ class AddTouiteAction extends Action
         }
 
         if ($this->http_method === 'POST') {
-            Repository::getInstance("");
+            Repository::getInstance(__DIR__."/../../../config.ini");
             $repository = Repository::getInstance();
 
             $nom = filter_var(
