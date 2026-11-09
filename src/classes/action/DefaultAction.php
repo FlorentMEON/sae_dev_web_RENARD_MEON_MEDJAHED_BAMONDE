@@ -6,6 +6,7 @@ namespace touiteur\action;
 
 use touiteur\repository\Repository;
 use touiteur\render\TouiteListRenderer;
+use touiteur\message\TouiteList;
 
 class DefaultAction extends Action
 {
@@ -49,13 +50,20 @@ class DefaultAction extends Action
         }
 
         // On récupère l'instance du repository
+        Repository::setConfig(__DIR__."/../../../config.ini");
         $repository = Repository::getInstance();
 
         // On récupère la liste des touites
-        $touites = $repository->getTouite();
+        $touites = $repository->getTouiteUtilisateur("Martin");
+        
+        $tl = new TouiteList();
+
+        foreach ($touites as $t){
+            $tl->ajoutTouite($t);
+        }
 
         // On crée le renderer pour afficher la liste
-        $renderer = new TouiteListRenderer($touites);
+        $renderer = new TouiteListRenderer($tl);
 
         // On construit le HTML de la page d'accueil
         $html = '<h1>Accueil !</h1>';

@@ -12,10 +12,10 @@ class Repository {
 	
 	private function __construct(array $conf) {
 		$this->pdo = new \PDO($conf['dsn'], $conf['user'], $conf['pass'],
-			[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXECPTION,
-			PDO::ATTR_PERSISTENT => true,
-			PDO::ATTR_EMULATE_PREPARES => false,
-			PDO::ATTR_STRINGIFY_FETCHES => false]);
+			[\PDO::ATTR_ERRMODE=>\PDO::ERRMODE_EXCEPTION,
+			\PDO::ATTR_PERSISTENT => true,
+			\PDO::ATTR_EMULATE_PREPARES => false,
+			\PDO::ATTR_STRINGIFY_FETCHES => false]);
 		$this->pdo->prepare('SET NAMES \'UTF8\'')->execute();
 	}
 	
