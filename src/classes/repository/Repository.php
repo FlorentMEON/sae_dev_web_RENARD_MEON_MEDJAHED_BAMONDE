@@ -31,19 +31,19 @@ class Repository {
 	}
 	
 	public static function getInstance(string $file) {
-		if(is_null(self::instance)) {
-			self::instance = new Repository(self::$config);
+		if(is_null(self::$instance)) {
+			self::$instance = new Repository(self::$config);
 		}
 		return self::$instance;
 	}
 	
 
 	public function getTouiteUtilisateur(string $nom) {
-		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		//Requete pour trouver les touite avec un nom d'utilisateur
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		
                   FROM TOUITE t
                   INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
                   WHERE u.nom = :nom
-                  ORDER BY t.date_publication DESC";
+                  ORDER BY t.date_publication DESC";			//Requete pour trouver les touite avec un nom d'utilisateur
 		$stmt = $this->pdo->prepare($query);
 		$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);			
 		$stmt->execute(['nom' => $secuNom]);
@@ -55,8 +55,9 @@ class Repository {
 			$touite = new Touite($secuTexte, $secuAuteur);
 			$liste[] = $touite;
 		}
-		return $liste
+		return $liste;
 	}
+
 	
 	public function getTouiteTag(string $tag) {
 		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		///Requete pour trouver les touite avec un tag
@@ -116,4 +117,3 @@ class Repository {
 		$stmt->execute(['nom' => $secuNom]);     ///Exécution de la commande
 	}
 }
->
