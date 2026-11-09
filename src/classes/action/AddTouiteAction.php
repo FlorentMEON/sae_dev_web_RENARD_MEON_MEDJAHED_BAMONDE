@@ -48,11 +48,11 @@ class AddTouiteAction extends Action
                 FILTER_SANITIZE_FULL_SPECIAL_CHARS
             );
 
-            if ($repository->getUSer('name')==''){
-                $repository->addUser($nom);
+            if ($repository->estUtilisateur('name')==''){
+                $repository->ajoutUtilisateur($nom);
             }
             
-            $repository->addTweet($nom,$touite);
+            $repository->ajoutTouite($nom,$touite);
 
         }
             $res = "Nom:$nom</br>touite:$touite";
