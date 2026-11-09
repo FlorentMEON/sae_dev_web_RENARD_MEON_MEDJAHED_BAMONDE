@@ -36,27 +36,21 @@ class AddTouiteAction extends Action
         }
 
         if ($this->http_method === 'POST') {
-            Repository::getInstance(__DIR__."/../../../config.ini");
+            Repository::setConfig(__DIR__."/../../../config.ini");
             $repository = Repository::getInstance();
 
-            $nom = filter_var(
-                $_POST['name'] ?? '',
-                FILTER_SANITIZE_FULL_SPECIAL_CHARS
-            );
+            $nom = $_POST['name']?? '';
 
-            $touite = filter_var(
-                $_POST['touite'] ?? '',
-                FILTER_SANITIZE_FULL_SPECIAL_CHARS
-            );
+            $touite = $_POST['touite'] ?? '';
 
             if ($repository->estUtilisateur('name')==''){
                 $repository->ajoutUtilisateur($nom);
             }
             
             $repository->ajoutTouite($nom,$touite);
+            $res = "Nom:$nom</br>touite:$touite";
 
         }
-            $res = "Nom:$nom</br>touite:$touite";
         
         return $res;
     }
