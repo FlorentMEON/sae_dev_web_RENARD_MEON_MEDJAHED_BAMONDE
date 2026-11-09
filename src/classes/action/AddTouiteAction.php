@@ -36,6 +36,7 @@ class AddTouiteAction extends Action
         }
 
         if ($this->http_method === 'POST') {
+            Repository::getInstance("");
             $repository = Repository::getInstance();
 
             $nom = filter_var(
