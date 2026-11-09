@@ -12,15 +12,41 @@ class DefaultAction extends Action
 {
     public function execute(): string
     {
-        // On récupère le tag déjà enregistré dans le cookie
-        $tagAbonne = $_COOKIE['tag_abonne'] ?? '';
+        // On récupère les tags déjà enregistrés
+        $tagsAbonnes = [];
 
-        // Si le formulaire a été envoyé, on enregistre le tag
-        if (isset($_POST['tag']) && $_POST['tag'] !== '') {
-            $tagAbonne = $_POST['tag'];
+        if (isset($_COOKIE['tag_abonne']) && $_COOKIE['tag_abonne'] !== '') {
+            $tagsAbonnes = explode(',', $_COOKIE['tag_abonne']);
+        }
 
-            // Le cookie est conservé pendant 30 jours
-            setcookie('tag_abonne', $tagAbonne, time() + 60 * 60 * 24 * 30);
+        // On vérifie que le formulaire a été envoyé en POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            if (isset($_POST['valider']) && isset($_POST['tag']) && $_POST['tag'] !== '') {
+
+                $nouveauTag = $_POST['tag'];
+
+                // On vérifie que le tag ne contient pas de virgule
+                if (count(explode(',', $nouveauTag)) === 1) {
+
+                    // On vérifie que le tag n'est pas déjà enregistré
+                    $dejaAbonne = false;
+
+                    foreach ($tagsAbonnes as $tag) {
+                        if ($tag === $nouveauTag) {
+                            $dejaAbonne = true;
+                        }
+                    }
+
+                    // Si le tag est nouveau, on l'ajoute
+                    if (!$dejaAbonne) {
+                        $tagsAbonnes[] = $nouveauTag;
+
+                        // On enregistre tous les tags dans le cookie
+                        setcookie('tag_abonne', implode(',', $tagsAbonnes), time() + 60 * 60 * 24 * 30);
+                    }
+                }
+            }
         }
 
         // On récupère l'instance du repository
@@ -45,15 +71,21 @@ class DefaultAction extends Action
         // Formulaire pour s'abonner à un tag
         $html .= '<h2>S\'abonner à un tag</h2>';
         $html .= '<form method="POST" action="?action=default">';
-        $html .= '<label for="tag">Tag :</label>';
+        $html .= '<label for="tag">Tag (sans #) :</label>';
         $html .= '<input type="text" id="tag" name="tag" required>';
-        $html .= '<button type="submit">S\'abonner</button>';
+        $html .= '<button type="submit" name="valider" value="1">S\'abonner</button>';
         $html .= '</form>';
 
-        // On affiche le tag enregistré dans le cookie
-        if ($tagAbonne !== '') {
-            $tagAffiche = filter_var($tagAbonne, FILTER_SANITIZE_SPECIAL_CHARS);
-            $html .= '<p>Tag enregistré : #' . $tagAffiche . '</p>';
+        // On affiche les tags enregistrés
+        if (count($tagsAbonnes) > 0) {
+            $html .= '<p>Tags suivis : ';
+
+            foreach ($tagsAbonnes as $tag) {
+                $tagAffiche = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);
+                $html .= '#' . $tagAffiche . ' ';
+            }
+
+            $html .= '</p>';
         }
 
         // On affiche la liste des touites
