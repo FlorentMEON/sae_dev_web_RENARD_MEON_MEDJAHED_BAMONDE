@@ -1,3 +1,4 @@
+
 <?php
 
 namespace touiteur\render;
@@ -26,7 +27,7 @@ class TouiteRenderer
 
         // Construction du HTML du touite
         $html = '<article class="touite touite-court">';
-        $html .= '<p class="touite-auteur">' . $this->lienAuteur() . '</p>';
+        $html .= '<div class="touite-auteur">' . $this->lienAuteur() . '</div>';
         $html .= '<p class="touite-texte">' . $this->echapper($texte) . '</p>';
         $html .= $this->renderTags();
         $html .= '</article>';
@@ -38,7 +39,7 @@ class TouiteRenderer
     public function renderDetail(): string
     {
         $html = '<article class="touite touite-detail">';
-        $html .= '<p class="touite-auteur">' . $this->lienAuteur() . '</p>';
+        $html .= '<div class="touite-auteur">' . $this->lienAuteur() . '</div>';
         $html .= '<p class="touite-texte">'
             . $this->echapper($this->touite->texte) . '</p>';
         $html .= $this->renderTags();
@@ -119,15 +120,18 @@ class TouiteRenderer
         return '<p class="touite-tags">' . $liens . '</p>';
     }
 
-    // Crée un lien vers les touites de l'auteur
+    // Permet de suivre l'auteur en cliquant sur son pseudo
     private function lienAuteur(): string
     {
-        $pseudo = $this->touite->utilisateur;
+        $pseudo = $this->echapper($this->touite->utilisateur);
 
-        // Le Dispatcher se chargera de l'action user
-        $url = '?action=user&pseudo=' . $pseudo;
+        $html = '<form method="POST" action="?action=default">';
+        $html .= '<button type="submit" name="suivrePseudo" value="' . $pseudo . '">';
+        $html .= $pseudo;
+        $html .= '</button>';
+        $html .= '</form>';
 
-        return $this->creerLien($url, $pseudo);
+        return $html;
     }
 
     // Crée une balise HTML pour un lien
@@ -137,7 +141,7 @@ class TouiteRenderer
             . $this->echapper($libelle) . '</a>';
     }
 
-    // Sécurise le texte affiché.
+    // Sécurise le texte affiché
     private function echapper(string $texte): string
     {
         return filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);

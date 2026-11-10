@@ -1,3 +1,4 @@
+
 <?php
 
 declare(strict_types=1);
@@ -19,9 +20,17 @@ class DefaultAction extends Action
             $tagsAbonnes = explode(',', $_COOKIE['tag_abonne']);
         }
 
+        // On récupère les utilisateurs déjà suivis
+        $pseudosSuivis = [];
+
+        if (isset($_COOKIE['pseudos_suivis']) && $_COOKIE['pseudos_suivis'] !== '') {
+            $pseudosSuivis = explode(',', $_COOKIE['pseudos_suivis']);
+        }
+
         // On vérifie que le formulaire a été envoyé en POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+            // Abonnement à un tag
             if (isset($_POST['valider']) && isset($_POST['tag']) && $_POST['tag'] !== '') {
 
                 $nouveauTag = $_POST['tag'];
@@ -43,22 +52,57 @@ class DefaultAction extends Action
                         $tagsAbonnes[] = $nouveauTag;
 
                         // On enregistre tous les tags dans le cookie
-                        setcookie('tag_abonne', implode(',', $tagsAbonnes), time() + 60 * 60 * 24 * 30);
+                        setcookie(
+                            'tag_abonne',
+                            implode(',', $tagsAbonnes),
+                            time() + 60 * 60 * 24 * 30
+                        );
+                    }
+                }
+            }
+
+            // Abonnement à un utilisateur
+            if (isset($_POST['suivrePseudo']) && $_POST['suivrePseudo'] !== '') {
+
+                $nouveauPseudo = $_POST['suivrePseudo'];
+
+                // On vérifie que le pseudo ne contient pas de virgule
+                if (count(explode(',', $nouveauPseudo)) === 1) {
+
+                    // On vérifie que l'utilisateur n'est pas déjà suivi
+                    $dejaSuivi = false;
+
+                    foreach ($pseudosSuivis as $pseudo) {
+                        if ($pseudo === $nouveauPseudo) {
+                            $dejaSuivi = true;
+                        }
+                    }
+
+                    // Si l'utilisateur n'est pas déjà suivi, on l'ajoute
+                    if (!$dejaSuivi) {
+                        $pseudosSuivis[] = $nouveauPseudo;
+
+                        // On enregistre tous les pseudos dans le cookie
+                        setcookie(
+                            'pseudos_suivis',
+                            implode(',', $pseudosSuivis),
+                            time() + 60 * 60 * 24 * 30
+                        );
                     }
                 }
             }
         }
 
         // On récupère l'instance du repository
-        Repository::setConfig(__DIR__."/../../../config.ini");
+        Repository::setConfig(__DIR__ . "/../../../config.ini");
         $repository = Repository::getInstance();
 
         // On récupère la liste des touites
         $touites = $repository->getTouiteUtilisateur("Martin");
-        
+
         $tl = new TouiteList();
 
-        foreach ($touites as $t){
+        foreach ($touites as $t) {
             $tl->ajoutTouite($t);
         }
 
@@ -83,6 +127,18 @@ class DefaultAction extends Action
             foreach ($tagsAbonnes as $tag) {
                 $tagAffiche = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);
                 $html .= '#' . $tagAffiche . ' ';
+            }
+
+            $html .= '</p>';
+        }
+
+        // On affiche les utilisateurs suivis
+        if (count($pseudosSuivis) > 0) {
+            $html .= '<p>Utilisateurs suivis : ';
+
+            foreach ($pseudosSuivis as $pseudo) {
+                $pseudoAffiche = filter_var($pseudo, FILTER_SANITIZE_SPECIAL_CHARS);
+                $html .= $pseudoAffiche . ' ';
             }
 
             $html .= '</p>';
