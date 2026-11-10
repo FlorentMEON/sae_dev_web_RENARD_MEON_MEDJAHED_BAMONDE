@@ -110,10 +110,61 @@ class Repository {
 		$resultat = $stmt2->execute(['texte' => $secuTexte, 'id_auteur' => $idAuteur]);   ///Exécution de la commande
 	}
 	
+
 	public function ajoutUtilisateur(string $n) {
 		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);       ///Vérification du nom de l'utilisateur
-		$query = "INSERT INTO UTILISATEUR (nom, nb_touites) VALUES (:nom, 0)";    ///Requete pour ajouter un utilisateur dans la BDD
+		$emailFactice = uniqid() . "@touiteur.app"; 			///Generation del'email
+		$query = "INSERT INTO UTILISATEUR (nom, email, nb_touites) VALUES (:nom, :email, 0)"; 
 		$stmt = $this->pdo->prepare($query);      
-		$stmt->execute(['nom' => $secuNom]);     ///Exécution de la commande
+		$stmt->execute(['nom' => $secuNom,'email' => $emailFactice]);     
 	}
+	
+	
+	
+	public function getTouitesUtiTag(array $utils, array $tags): array {
+		$touites = []; 
+		foreach ($utils as $nom) {		
+			$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		
+					  FROM TOUITE t
+					  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+					  WHERE u.nom = :nom
+					  ORDER BY t.date_publication DESC";
+			$stmt = $this->pdo->prepare($query);
+			$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);
+			$stmt->execute(['nom' => $secuNom]);
+			$lignes = $stmt->fetchAll();			/// renvoie des resultats en tableau
+			
+			foreach ($lignes as $ligne) {		/// boucle pour ajouter les touites au tableau qui sera renvoyé
+				$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);		/// Vérification du texte
+				$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);		/// Vérification du nom de l'utilisateur
+				$touite = new Touite($secuTexte, $secuAuteur);
+				$touite->id = $ligne['id_touite'];
+				$touites[$touite->id] = $touite;		/// Utilisation de l'ID comme clé pour éviter les doublons
+			}
+		}
+		foreach ($tags as $tag) {			/// boucle sur le tableau des tags
+			$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		
+					  FROM TOUITE t
+					  INNER JOIN CONTENIR c ON t.id_touite = c.id_touite
+					  INNER JOIN TAG tg ON c.id_tag = tg.id_tag
+					  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+					  WHERE tg.libelle = :tag
+					  ORDER BY t.date_publication DESC";			/// Requete pour trouver les touite avec un tag
+			$stmt = $this->pdo->prepare($query);
+			$secuTag = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);			/// Vérification du tag
+			$stmt->execute(['tag' => $secuTag]);
+			$lignes = $stmt->fetchAll();			/// renvoie les resultats en tableau
+			foreach ($lignes as $ligne) {		/// boucle pour ajouter les touites au tableau qui sera renvoyé
+				$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);		/// Vérification du texte
+				$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);		/// Vérification du nom de l'utilisateur
+				$touite = new Touite($secuTexte, $secuAuteur);
+				$touite->id = $ligne['id_touite'];
+				$touites[$touite->id] = $touite;		/// Utilisation de l'ID comme clé pour éviter les doublons
+			}
+		}
+		$liste = array_values($touites);			/// enleve les doublons
+		return $liste;
+	}
+}
+
 }
