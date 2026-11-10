@@ -1,4 +1,3 @@
-
 <?php
 
 declare(strict_types=1);
@@ -98,7 +97,7 @@ class DefaultAction extends Action
         $repository = Repository::getInstance();
 
         // On récupère la liste des touites
-        $touites = $repository->getTouiteUtilisateur("Martin");
+        $touites = $repository->getTouitesUtiTag($pseudosSuivis,$tagsAbonnes);
 
         $tl = new TouiteList();
 
