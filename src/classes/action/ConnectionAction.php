@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace touiteur\action;
+use touiteur\repository\Repository;
 
 class ConnectionAction extends Action
 {
@@ -23,8 +24,21 @@ class ConnectionAction extends Action
                 session_start();
                 $username = filter_var($_POST['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 $_SESSION['username'] = $username;
-                $res = "<p>vous etes connecté entant qu'utilisateur $username</p>";
-                $res .= "</br><a href=\"?action=default\">Retour à l'accueil</a>";
+
+                Repository::setConfig(__DIR__."/../../../config.ini");
+                $repository = Repository::getInstance();
+
+                if ($repository->getIdUtilisateur($username) === false){
+                    $repository->ajoutUtilisateur($username);
+                    $_SESSION["utisSuivis"] = [];
+                    $_SESSION["tagsSuivis"] = [];
+                } else {
+                    $_SESSION["utisSuivis"] = $repository->getUtilisateurSuivi($username);
+                    $_SESSION["tagsSuivis"] = $repository->getTagsSuivi($username);
+                }
+
+                header('Location: ?action=default');
+                exit;
             }
         } 
         return $res;
