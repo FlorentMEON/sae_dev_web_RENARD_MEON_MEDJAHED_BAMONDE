@@ -209,17 +209,18 @@ class Repository {
 	}
 	
 	public function ajoutTouite(string $n, string $texte) {
-		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
-		$secuTexte = filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);
 		$query1 = "SELECT id_utilisateur FROM UTILISATEUR WHERE nom = :nom";    ///Requete pour trouver l'ID de l'utilisateur mit en paramètre
 		$stmt1 = $this->pdo->prepare($query1);
-       	$stmt1->execute(['nom' => $secuNom]);			///Exécution de la commande
+       	$stmt1->execute(['nom' => $n]);			///Exécution de la commande
        	$Ligne1 = $stmt1->fetch();				
 		$idAuteur = $Ligne1['id_utilisateur'];
+
 		$query2 = "INSERT INTO TOUITE (texte, date_publication, id_auteur) 
                    VALUES (:texte, NOW(), :id_auteur)"; ///Requete pour ajouter un touite dans la BDD
 		$stmt2 = $this->pdo->prepare($query2);
-		$resultat = $stmt2->execute(['texte' => $secuTexte, 'id_auteur' => $idAuteur]);   ///Exécution de la commande
+
+		$stmt2->execute(['texte' => $texte, 'id_auteur' => $idAuteur]);   ///Exécution de la commande
+		return (int) $this->pdo->lastInsertId();
 	}
 	
 
