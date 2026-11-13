@@ -1,6 +1,7 @@
 <?php
 namespace touiteur\repository;
 use touiteur\message\Touite;
+use DateTime;
 
 class Repository {
 	
@@ -232,7 +233,7 @@ class Repository {
 		return (int) $this->pdo->lastInsertId(); 
 	}
 
-		public function ajoutTag($libelle){
+	public function ajoutTag($libelle){
 		$query = "INSERT INTO TAG (libelle) VALUES (:libelle)";
 
 		$stmt = $this->pdo->prepare($query);
@@ -247,6 +248,7 @@ class Repository {
 
 	    return $stmt->execute(['id_touite' => $idTouite,'id_tag' => $idTag]);
 	}
+
 
 	public function getUtilisateurSuivi($nom){
 		$utils = [];
