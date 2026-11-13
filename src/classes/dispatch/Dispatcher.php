@@ -20,31 +20,22 @@ class Dispatcher{
     }
     
     private function renderPage(String $html): void{
-        $page = <<<HTML
-            <!DOCTYPE html>
-            <html lang="fr">
-            <head>
-                <meta charset="UTF-8">
-                <title>Touiteur</title>
-            </head>
-            <body>
-                <header>
-                    <h1>Bienvenu sur Touiteur (piou-piou)</h1>
-
-                    <nav>
-                        <ul>
-                            <li><a href="?action=default">Accueil</a></li>
-                            <li><a href="?action=connect">Se connecter</a></li>
-                        </ul>
-                    </nav>
-                </header>
-
-                <main>
-                    $html
-                </main>
-            </body>
-            </html>
-        HTML;
+        $page = '<!DOCTYPE html>';
+        $page .= '<html lang="fr">';
+        $page .= '<head>';
+        $page .= '<meta charset="UTF-8">';
+        $page .= '<link rel="stylesheet" href="style.css">';
+        $page .= '<title>Touiteur</title>';
+        $page .= '</head>';
+        $page .= '<body>';
+        $page .= '<header>';
+        $page .= '<h1>Touiteur</h1>';
+        $page .= '</header>';
+        $page .= '<main>';
+        $page .= $html;
+        $page .= '</main>';
+        $page .= '</body>';
+        $page .= '</html>';
 
         echo $page;
     }
