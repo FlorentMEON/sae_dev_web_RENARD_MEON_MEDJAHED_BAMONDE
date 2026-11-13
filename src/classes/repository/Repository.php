@@ -34,6 +34,23 @@ class Repository {
 		}
 		return self::$instance;
 	}
+
+	public function getTouites() {
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		
+                  FROM TOUITE t
+                  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+                  ORDER BY t.date_publication DESC";			//Requete pour trouver les touite
+		$stmt = $this->pdo->prepare($query);	
+		$stmt->execute();
+		$lignes = $stmt->fetchAll();			/// renvoie des resultats en tableau
+		$liste = [];
+		foreach ($lignes as $ligne) {     ///boucle pour ajouter les touites au tableau qui sera renvoyé
+			$touite = new Touite($ligne['texte'], $ligne['auteur'], new DateTime($ligne['date_publication']));
+			$touite->id = $ligne['id_touite'];
+			$liste[] = $touite;
+		}
+		return $liste;
+	}
 	
 
 	public function getTouiteUtilisateur(string $nom) {
