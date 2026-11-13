@@ -225,11 +225,11 @@ class Repository {
 	
 
 	public function ajoutUtilisateur(string $n) {
-		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);       ///Vérification du nom de l'utilisateur
-		$emailFactice = uniqid() . "@touiteur.app"; 			///Generation del'email
+		$emailFactice = uniqid() . "@touiteur.app"; 			///Generation de l'email, on n'utilise pas d'email mais il en faut une unique
 		$query = "INSERT INTO UTILISATEUR (nom, email, nb_touites) VALUES (:nom, :email, 0)"; 
 		$stmt = $this->pdo->prepare($query);      
-		$stmt->execute(['nom' => $secuNom,'email' => $emailFactice]);     
+		$stmt->execute(['nom' => $n,'email' => $emailFactice]);    
+		return (int) $this->pdo->lastInsertId(); 
 	}
 }
 
