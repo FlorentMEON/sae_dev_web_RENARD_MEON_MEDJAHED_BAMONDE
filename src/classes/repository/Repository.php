@@ -153,6 +153,22 @@ class Repository {
 
 	    return $touites;
 	}
+
+	public function getTouiteById($id){
+		$query = "SELECT t.id_touite, t.texte, t.date_publication, u.nom AS auteur 		
+                  FROM TOUITE t
+                  INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+                  WHERE t.id_touite = :id;";		//Requete pour trouver les touite avec son id
+
+		$stmt = $this->pdo->prepare($query);	
+		$stmt->execute(['id' => $id]);
+		$ligne = $stmt->fetch();			/// renvoie des resultats en tableau
+
+		$touite = new Touite($ligne['texte'], $ligne['auteur'], new DateTime($ligne['date_publication']));
+		$touite->id = $ligne['id_touite'];
+
+		return $touite;
+	}
 	
 	public function estUtilisateur(string $n) {
 		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);      ///Vérification du nom de l'utilisateur
