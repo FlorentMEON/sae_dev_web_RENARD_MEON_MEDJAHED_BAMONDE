@@ -12,10 +12,10 @@ class Touite {
 	protected DateTime $date;
 	
 	
-	public function __construct(string $t, string $u) {
+	public function __construct(string $t, string $u, DateTime $d = new DateTime()) {
 		$this->texte = $t;
 		$this->utilisateur = $u;
-		$this->date = date_create("now",null);
+		$this->date = $d;
 	}
 	
 	public function getTags() {
@@ -28,7 +28,7 @@ class Touite {
 	}
 	
 	public function getDate(){
-		return $this->date->format('d,m,y,H,i,s');
+		return $this->date->format('d/m/Y à H:i');
 	}
 	
 	public function __get(string $att): mixed {
