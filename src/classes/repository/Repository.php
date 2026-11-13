@@ -170,18 +170,13 @@ class Repository {
 		return $touite;
 	}
 	
-	public function estUtilisateur(string $n) {
-		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);      ///Vérification du nom de l'utilisateur
+	public function getIdUtilisateur(string $n) {
 		$query = "SELECT nom								
 				  FROM utilisateur
 				  WHERE nom = :nom";///Requete pour trouver l'ID de l'utilisateur mit en paramètre
 		$stmt = $this->pdo->prepare($query);
-		$stmt->execute(['nom' => $secuNom]);
-		$ligne = $stmt->fetch();
-		if ($ligne !== false) {
-			return true;  			/// la méthode fetch renvoie false si elle ne trouve rien alors on teste son contenu
-		}
-		return false;			
+		$stmt->execute(['nom' => $n]);
+		return $stmt->fetch(); /// renvoie l'ID de l'utilisateur ou false si il n'existe pas			
 	}
 	
 	public function ajoutTouite(string $n, string $texte) {
