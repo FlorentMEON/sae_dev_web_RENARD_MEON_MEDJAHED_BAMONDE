@@ -27,8 +27,9 @@ class TouiteRenderer
         // Construction du HTML du touite
         $html = '<article class="touite touite-court">';
         $html .= '<div class="touite-auteur">' . $this->lienAuteur() . '</div>';
-        $html .= '<p class="touite-texte">' . $this->echapper($texte) . '</p>';
+        $html .= '<p class="touite-texte">' . $texte . '</p>';
         $html .= $this->renderTags();
+        $html .= '<a href="?action=show_touite&id_touite='. $this->touite->id .'">Afficher en détail</a>';
         $html .= '</article>';
 
         return $html;
@@ -40,8 +41,9 @@ class TouiteRenderer
         $html = '<article class="touite touite-detail">';
         $html .= '<div class="touite-auteur">' . $this->lienAuteur() . '</div>';
         $html .= '<p class="touite-texte">'
-            . $this->echapper($this->touite->texte) . '</p>';
+            . $this->touite->texte . '</p>';
         $html .= $this->renderTags();
+        $html .= '<p>'.$this->touite->getDate().'</p>';
         $html .= '</article>';
 
         return $html;
@@ -106,7 +108,7 @@ class TouiteRenderer
             $nom = $this->enleverDieze($tag);
 
             // L'action tag sera traitée par le Dispatcher
-            $url = '?action=tag&tag=' . $nom;
+            $url = '?action=show_tag&tag=' . $nom;
 
             $liens .= $this->creerLien($url, '#' . $nom) . ' ';
         }
@@ -122,13 +124,9 @@ class TouiteRenderer
     // Permet de suivre l'auteur en cliquant sur son pseudo
     private function lienAuteur(): string
     {
-        $pseudo = $this->echapper($this->touite->utilisateur);
+        $pseudo = $this->touite->utilisateur;
 
-        $html = '<form method="POST" action="?action=default">';
-        $html .= '<button type="submit" name="suivrePseudo" value="' . $pseudo . '">';
-        $html .= $pseudo;
-        $html .= '</button>';
-        $html .= '</form>';
+        $html = '<a href="?action=show_user&showUser='. $pseudo .'">'. $pseudo .'</a>';
 
         return $html;
     }
@@ -136,13 +134,7 @@ class TouiteRenderer
     // Crée une balise HTML pour un lien
     private function creerLien(string $url, string $libelle): string
     {
-        return '<a href="' . $this->echapper($url) . '">'
-            . $this->echapper($libelle) . '</a>';
-    }
-
-    // Sécurise le texte affiché
-    private function echapper(string $texte): string
-    {
-        return filter_var($texte, FILTER_SANITIZE_SPECIAL_CHARS);
+        return '<a href="' . $url . '">'
+            . $libelle . '</a>';
     }
 }
