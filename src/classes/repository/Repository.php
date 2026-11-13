@@ -178,6 +178,15 @@ class Repository {
 		$stmt->execute(['nom' => $n]);
 		return $stmt->fetch(); /// renvoie l'ID de l'utilisateur ou false si il n'existe pas			
 	}
+
+	public function getIdTag(string $libelle) {
+		$query = "SELECT id_tag								
+				  FROM Tag
+				  WHERE libelle = :libelle"; ///Requete pour trouver l'ID du tag mit en paramètre
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['libelle' => $libelle]);
+		return $stmt->fetch(); /// renvoie l'ID du tag ou false si il n'existe pas
+	}
 	
 	public function ajoutTouite(string $n, string $texte) {
 		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
