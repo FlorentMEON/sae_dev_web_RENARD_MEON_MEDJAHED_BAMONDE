@@ -247,6 +247,46 @@ class Repository {
 
 	    return $stmt->execute(['id_touite' => $idTouite,'id_tag' => $idTag]);
 	}
+
+	public function getUtilisateurSuivi($nom){
+		$utils = [];
+
+		$query = "SELECT u2.nom as suivi
+				  FROM UTILISATEUR u1
+				  INNER JOIN SUIVRE s ON u1.id_utilisateur = s.id_suiveur
+				  INNER JOIN UTILISATEUR u2 ON s.id_suivi = u2.id_utilisateur
+				  WHERE u1.nom = :nom;";
+
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $nom]);
+		$lignes = $stmt->fetchAll();			/// renvoie des resultats en tableau
+		
+		foreach ($lignes as $ligne) {		/// boucle pour ajouter les utilisateurs suivis au tableau qui sera renvoyé
+			$utils[] = $ligne['suivi'];
+		}
+
+		return $utils;
+	}
+
+	public function getTagsSuivi($nom){
+		$tags = [];
+
+		$query = "SELECT t.libelle as libelle
+				  FROM UTILISATEUR u
+				  INNER JOIN ABONNEMENT_TAG a ON u.id_utilisateur = a.id_abonne
+				  INNER JOIN TAG t ON a.id_tag = t.id_tag
+				  WHERE u.nom = :nom;";
+
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $nom]);
+		$lignes = $stmt->fetchAll();			/// renvoie des resultats en tableau
+		
+		foreach ($lignes as $ligne) {		/// boucle pour ajouter les tags suivis au tableau qui sera renvoyé
+			$tags[] = $ligne['libelle'];
+		}
+
+		return $tags;
+	}
 }
 
 
