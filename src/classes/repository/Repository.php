@@ -59,15 +59,13 @@ class Repository {
                   INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
                   WHERE u.nom = :nom
                   ORDER BY t.date_publication DESC";			//Requete pour trouver les touite avec un nom d'utilisateur
-		$stmt = $this->pdo->prepare($query);
-		$secuNom = filter_var($nom, FILTER_SANITIZE_SPECIAL_CHARS);			
-		$stmt->execute(['nom' => $secuNom]);
+		$stmt = $this->pdo->prepare($query);	
+		$stmt->execute(['nom' => $nom]);
 		$lignes = $stmt->fetchAll();			/// renvoie des resultats en tableau
 		$liste = [];
 		foreach ($lignes as $ligne) {     ///boucle pour ajouter les touites au tableau qui sera renvoyé
-			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);
-			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);				///Vérification du nom de l'utilisateur
-			$touite = new Touite($secuTexte, $secuAuteur);
+			$touite = new Touite($ligne['texte'], $ligne['auteur'], new DateTime($ligne['date_publication']));
+			$touite->id = $ligne['id_touite'];
 			$liste[] = $touite;
 		}
 		return $liste;
