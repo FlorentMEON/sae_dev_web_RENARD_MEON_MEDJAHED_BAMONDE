@@ -81,14 +81,11 @@ class Repository {
                   WHERE tg.libelle = :tag
                   ORDER BY t.date_publication DESC";///Requete pour trouver les touite avec un tag
 		$stmt = $this->pdo->prepare($query);
-		$secuTag = filter_var($tag, FILTER_SANITIZE_SPECIAL_CHARS);					///Vérification du tag
-		$stmt->execute(['tag' => $secuTag]);
+		$stmt->execute(['tag' => $tag]);
 		$lignes = $stmt->fetchAll();					/// renvoie les resultats en tableau
 		$liste = [];
 		foreach ($lignes as $ligne) {			///boucle pour ajouter les touites au tableau qui sera renvoyé
-			$secuTexte = filter_var($ligne['texte'], FILTER_SANITIZE_SPECIAL_CHARS);		///Vérification du texte
-			$secuAuteur = filter_var($ligne['auteur'], FILTER_SANITIZE_SPECIAL_CHARS);       ///Vérification du nom de l'utilisateur
-			$touite = new Touite($secuTexte, $secuAuteur);
+			$touite = new Touite($ligne['texte'], $ligne['auteur'], new DateTime($ligne['date_publication']));
 			$touite->id = $ligne['id_touite'];
 			$liste[] = $touite;
 		}
