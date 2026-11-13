@@ -231,6 +231,22 @@ class Repository {
 		$stmt->execute(['nom' => $n,'email' => $emailFactice]);    
 		return (int) $this->pdo->lastInsertId(); 
 	}
+
+		public function ajoutTag($libelle){
+		$query = "INSERT INTO TAG (libelle) VALUES (:libelle)";
+
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['libelle' => $libelle]);
+		return (int) $this->pdo->lastInsertId();
+	}
+
+	public function ajouterTagTouite($idTouite, $idTag): bool {
+	    $query = "INSERT INTO CONTENIR (id_touite, id_tag) VALUES (:id_touite, :id_tag)";
+
+	    $stmt = $this->pdo->prepare($query);
+
+	    return $stmt->execute(['id_touite' => $idTouite,'id_tag' => $idTag]);
+	}
 }
 
 
