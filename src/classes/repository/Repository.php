@@ -287,6 +287,27 @@ class Repository {
 
 		return $tags;
 	}
+
+	public function setAbonnementTag($nom, $id_tag){
+		$query = "INSERT INTO ABONNEMENT_TAG (id_abonne, id_tag)
+				  SELECT id_utilisateur, :idTag
+				  FROM UTILISATEUR
+				  WHERE nom = :nom;";
+		
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['nom' => $nom, 'idTag' => $id_tag]);
+	}
+
+	public function setSuiviUtilisateur($nomSuiveur, $nomSuivi){
+		$query = "INSERT INTO SUIVRE (id_suiveur, id_suivi)
+				  SELECT u1.id_utilisateur, u2.id_utilisateur
+				  FROM UTILISATEUR u1, UTILISATEUR u2
+				  WHERE u1.nom = :suiveur
+				  AND u2.nom = :suivi;";
+
+		$stmt = $this->pdo->prepare($query);
+		$stmt->execute(['suiveur' => $nomSuiveur, 'suivi' => $nomSuivi]);
+	}
 }
 
 
