@@ -135,9 +135,9 @@ class Repository {
 	    $query = "SELECT DISTINCT t.id_touite, t.texte,
 	                     t.date_publication, u.nom AS auteur
 	              FROM touite t
-	              INNER JOIN CONTENIR c ON t.id_touite = c.id_touite
-	              INNER JOIN TAG tg ON c.id_tag = tg.id_tag
-	              INNER JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
+	              LEFT JOIN CONTENIR c ON t.id_touite = c.id_touite
+	              LEFT JOIN TAG tg ON c.id_tag = tg.id_tag
+	              LEFT JOIN UTILISATEUR u ON t.id_auteur = u.id_utilisateur
 	              WHERE " . implode(" OR ", $conditions) . "
 	              ORDER BY t.date_publication DESC";
 
