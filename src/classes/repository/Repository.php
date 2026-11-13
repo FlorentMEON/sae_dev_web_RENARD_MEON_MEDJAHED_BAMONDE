@@ -187,6 +187,26 @@ class Repository {
 		$stmt->execute(['libelle' => $libelle]);
 		return $stmt->fetch(); /// renvoie l'ID du tag ou false si il n'existe pas
 	}
+
+	public function getInfluenceurs(){
+		$query = "SELECT u.id_utilisateur, u.nom, u.prenom, COUNT(s.id_suivi) AS nb_abonnes
+				  FROM UTILISATEUR u
+				  LEFT JOIN SUIVRE s ON u.id_utilisateur = s.id_suivi
+				  GROUP BY u.id_utilisateur, u.nom, u.prenom
+				  ORDER BY nb_abonnes DESC;";
+
+		$stmt = $this->pdo->prepare($query);
+	    $stmt->execute();
+
+		$influenceurs = [];
+	    $lignes = $stmt->fetchAll();
+
+	    foreach ($lignes as $ligne) {
+	        $influenceurs[$ligne['nom']] = $ligne['nb_abonnes'];
+	    }
+
+	    return $influenceurs;
+	}
 	
 	public function ajoutTouite(string $n, string $texte) {
 		$secuNom = filter_var($n, FILTER_SANITIZE_SPECIAL_CHARS);
