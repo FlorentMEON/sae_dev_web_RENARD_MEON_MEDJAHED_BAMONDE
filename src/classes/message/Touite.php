@@ -24,7 +24,13 @@ class Touite {
 		if (preg_match_all($pattern, $this->texte, $matches)) {
 		$tags = $matches[0];
 		}
-		return $tags;
+
+		$final_tag = [];
+		
+		foreach ($tags as $tag){
+			if ($tag !== "#039") $final_tag[] = $tag;
+		}
+		return $final_tag;
 	}
 	
 	public function getDate(){
